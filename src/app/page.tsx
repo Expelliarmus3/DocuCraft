@@ -53,7 +53,20 @@ export default function WorkspacePage() {
       // Generate context parameters depending on user's action
       let systemPrompt = "You are an expert technical writer and document formatting layout engine assistant.";
       if (action === 'professional') {
-        systemPrompt = `Rewrite the following text content to be highly professional, structured, and eloquently optimized for a ${templateId} document format. Preserve natural line breaks.`;
+        if (templateId === 'letter') {
+            systemPrompt = `Rewrite the following text content into a strict, traditional formal print business letter layout. 
+            You MUST explicitly generate the following structured components separated by natural newlines:
+            1. Sender's Address Block (Use realistic placeholders if missing) at the very top.
+            2. The current date (e.g., July 17, 2026).
+            3. Recipient's Name, Title, and Corporate Address Block.
+            4. A bolded subject line starting exactly with "SUBJECT: [Topic]".
+            5. A formal salutation (e.g., Dear [Name],).
+            6. The body paragraphs written in cohesive, persuasive corporate prose.
+            7. A formal sign-off ("Sincerely,"), a blank signature space, and the Sender's typed Name/Title at the bottom.
+            Preserve natural line breaks between blocks.`;
+        } else {
+          systemPrompt = `Rewrite the following text content to be highly professional, structured, and eloquently optimized for a ${templateId} document format. Preserve natural line breaks.`;
+        }
       } else if (action === 'summarize') {
         systemPrompt = "Provide an objective, high-impact executive summary paragraph of the following text layout, maintaining clean formatting structures.";
       }
