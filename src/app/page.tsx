@@ -6,7 +6,9 @@ import Preview from '@/components/Preview';
 import { TemplateId } from '@/utils/types';
 import { exportToDocx, exportToPdf } from '@/utils/documentExporter';
 import { Sun, Moon } from 'lucide-react';
-import { initAppCheck, getAppCheckToken } from '@/utils/firebase';
+import { initAppCheck } from '@/utils/firebase';
+// 1. Import the official Google Gen AI SDK
+import { GoogleGenAI } from '@google/genai';
 
 export default function WorkspacePage() {
   const [title, setTitle] = useState('Project Layout Assessment Blueprint');
@@ -31,29 +33,42 @@ export default function WorkspacePage() {
     initAppCheck();
   }, []);
 
+  // 2. Updated client-side Gemini invocation loop
   const handleAiEnhance = async (action: string) => {
     if (!content.trim()) return;
     setLoading(true);
+    
     try {
-      const token = await getAppCheckToken();
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (token) {
-        headers['x-firebase-appcheck'] = token;
+      // Pull key directly from environment configurations safely exposed to the client
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+      if (!apiKey) {
+        console.warn('⚠️ Missing NEXT_PUBLIC_GEMINI_API_KEY environment variable.');
+        setLoading(false);
+        return;
       }
 
-      const res = await fetch('/api/gemini', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ text: content, action, templateType: templateId }),
+      // Initialize the SDK directly
+      const ai = new GoogleGenAI({ apiKey });
+
+      // Generate context parameters depending on user's action
+      let systemPrompt = "You are an expert technical writer and document formatting layout engine assistant.";
+      if (action === 'professional') {
+        systemPrompt = `Rewrite the following text content to be highly professional, structured, and eloquently optimized for a ${templateId} document format. Preserve natural line breaks.`;
+      } else if (action === 'summarize') {
+        systemPrompt = "Provide an objective, high-impact executive summary paragraph of the following text layout, maintaining clean formatting structures.";
+      }
+
+      // Query the dynamic 2.5 flash model directly from the browser
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [systemPrompt, content],
       });
-      const data = await res.json();
-      if (data.processedText) {
-        setContent(data.processedText);
+
+      if (response.text) {
+        setContent(response.text);
       }
     } catch (e) {
-      console.error(e);
+      console.error('❌ Direct Client AI Inference Error:', e);
     } finally {
       setLoading(false);
     }
