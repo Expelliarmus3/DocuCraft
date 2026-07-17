@@ -3,7 +3,7 @@
 An intelligent, browser-accessible document formatting and layout engineering suite built on **Project IDX** and powered by **Google Cloud** and **Gemini APIs**.
 
 ## 🚀 Live Links
-* **Live Deployment URL:** `[Insert Your Live Google Cloud / Firebase URL Here]`
+* **Live Deployment URL:** `https://docucraft-studio-pro.web.app/`
 * **Development Platform:** Developed using **Antigravity IDE** 
 
 ## 🛠️ Tech Stack & Google Technologies
