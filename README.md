@@ -4,7 +4,7 @@ An intelligent, browser-accessible document formatting and layout engineering su
 
 ## 🚀 Live Links
 * **Live Deployment URL:** `[Insert Your Live Google Cloud / Firebase URL Here]`
-* **Project IDX Workspace:** `[Insert Your Shared IDX Workspace Link Here]`
+* **Development Platform:** Developed using **Antigravity IDE** 
 
 ## 🛠️ Tech Stack & Google Technologies
 * **Development Workspace:** Project IDX (Mandatory Environment Workflow)
