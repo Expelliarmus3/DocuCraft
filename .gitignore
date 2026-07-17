@@ -1,0 +1,35 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# Local environment secret variables (CRITICAL)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.*
+.env.secret
+
+# Next.js build artifact targets
+.next/
+out/
+build/
+dist/
+
+# Project IDX environment directories
+.idx/.env
+.idx/*_secret*
+
+# IDE / System configurations
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

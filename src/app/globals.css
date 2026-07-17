@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    /* ----------------------------------------------------
+       "Honeyed Linen" Custom Light Mode Palette 
+       ---------------------------------------------------- */
+    /* Primary soft cream foundation layer */
+    --bg-base: #f4efe8; 
+    
+    /* Honey-gold/beige surface depth container layer */
+    --bg-panel: #d7c7b9; 
+    
+    /* Warm espresso border outline definition token */
+    --border-ui: #c7b5a5; 
+    
+    /* Elegant warm brown focal highlight accent token */
+    --color-accent: #826554; 
+    
+    /* Deep espresso high-contrast readable heading color */
+    --color-text: #2b211c; 
+    
+    /* Softened accent brown for secondary captions */
+    --color-text-muted: #5c4a3e; 
+  }
+
+  /* When the JavaScript script injects the '.dark' selector hook 
+     into the layout framework element, these values override the defaults */
+  .dark {
+    /* ----------------------------------------------------
+       Sleek Midnight Hackathon Dark Mode Palette
+       ---------------------------------------------------- */
+    --bg-base: #020617;        /* Slate 950 Deep Space Base */
+    --bg-panel: #0f172a;       /* Slate 900 Surface Card */
+    --border-ui: #1e293b;      /* Slate 800 Interactive Trim */
+    --color-accent: #38bdf8;   /* High-Visibility Electric Blue */
+    --color-text: #f8fafc;     /* Slate 50 High-Contrast White */
+    --color-text-muted: #94a3b8; /* Slate 400 Soft Reading Text */
+  }
+}
+
+/* Global Document Reset Rule Hooks */
+body {
+  background-color: var(--bg-base);
+  color: var(--color-text);
+  /* Smoothly animates the UI when switching from Honeyed Linen to Midnight Dark */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
