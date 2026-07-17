@@ -9,19 +9,19 @@ An intelligent, browser-accessible document formatting and layout engineering su
 ## 🛠️ Tech Stack & Google Technologies
 * **Development Workspace:** Project IDX (Mandatory Environment Workflow)
 * **Frontend Architecture:** React, TypeScript, Next.js (App Router), Tailwind CSS v4
-* **AI Engine:** Google AI Studio & Gemini API (`gemini-1.5-flash`) for structural text enrichment and automatic summarization[cite: 1]
+* **AI Engine:** Google AI Studio & Gemini API (`gemini-1.5-flash`) for structural text enrichment and automatic summarization
 * **Security Framework:** Firebase App Check (reCAPTCHA v3) protecting backend routes from automation abuse[cite: 1]
 * **Deployment Infrastructure:** Google Cloud Run / Firebase App Hosting serverless pipeline[cite: 1]
-* **Document Engines:** Client-side zero-cost asset rendering (`jspdf`, `html2canvas`, `docx`)[cite: 1]
+* **Document Engines:** Client-side zero-cost asset rendering (`jspdf`, `html2canvas`, `docx`)
 
 ## ✨ Key Features Implemented
-1. **Dynamic Workspace Preview Engine:** Real-time dual-pane editor that maps changes instantly to an interactive document preview box[cite: 1].
+1. **Dynamic Workspace Preview Engine:** Real-time dual-pane editor that maps changes instantly to an interactive document preview box
 2. **Three Standardized Enterprise Templates:**
-   * **Professional Resume:** Dynamic index-slicing logic that structures candidate contact lines, prevents repeating rows, and maps section elements[cite: 1].
-   * **Formal Business Letter:** Elegant, formal serif-based executive layout with specific `SUBJECT:` block bolding and text-justify alignments[cite: 1].
-   * **Academic/Project Report:** Corporate publication layout featuring auto-bolding numbered headers and structured technical lists[cite: 1].
-3. **Strict A4 Bounding Controls:** Hard-coded $1$-inch margins applied uniformly on all boundaries of the canvas for direct printable parity[cite: 1].
-4. **Theme Customization:** Toggles fluidly between an high-contrast dark space and a customized **"Honeyed Linen"** warm cream aesthetic (`#f4efe8`, `#d7c7b9`, `#826554`, `#2b211c`).
+   * **Professional Resume:** Dynamic index-slicing logic that structures candidate contact lines, prevents repeating rows, and maps section elements.
+   * **Formal Business Letter:** Elegant, formal serif-based executive layout with specific `SUBJECT:` block bolding and text-justify alignments.
+   * **Academic/Project Report:** Corporate publication layout featuring auto-bolding numbered headers and structured technical lists.
+3. **Strict A4 Bounding Controls:** Hard-coded $1$-inch margins applied uniformly on all boundaries of the canvas for direct printable parity.
+4. **Theme Customization:** Toggles fluidly between an high-contrast dark space and a customized warm cream aesthetic (`#f4efe8`, `#d7c7b9`, `#826554`, `#2b211c`).
 5. **AI Integration:** Direct connection to Gemini API handling automated professional polishing and text summaries[cite: 1].
 
 ## 📦 Local Installation & Setup
