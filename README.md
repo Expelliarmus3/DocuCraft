@@ -39,7 +39,13 @@ An intelligent, browser-accessible document formatting and layout engineering su
    ```env
    GEMINI_API_KEY=your_actual_gemini_api_key_here
    NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN= 
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID= 
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET= 
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID= 
+   NEXT_PUBLIC_FIREBASE_APP_ID= 
    NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_key
+   NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN=true
     ```
 4. **Run the development server:**
    ```bash
