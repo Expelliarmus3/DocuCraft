@@ -1,6 +1,6 @@
 # DocuCraft Studio Pro
 
-An intelligent, browser-accessible document formatting and layout engineering suite built on **Project IDX** and powered by **Google Cloud** and **Gemini APIs**.
+An intelligent, browser-accessible document formatting and layout engineering suite built on **Antigravity IDE** and powered by **Google Cloud** and **Gemini APIs**.
 
 ## 🚀 Live Links
 * **Live Deployment URL:** `https://docucraft-studio-pro.web.app/`
