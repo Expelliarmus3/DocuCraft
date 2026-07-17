@@ -28,7 +28,7 @@ An intelligent, browser-accessible document formatting and layout engineering su
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/Expelliarmus3/DocuCraft.git](https://github.com/Expelliarmus3/DocuCraft.git)
+   git clone https://github.com/Expelliarmus3/DocuCraft.git
    cd DocuCraft```
 2. **Install dependencies:**
    ```bash
