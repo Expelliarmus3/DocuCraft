@@ -1,8 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getApps, initializeApp, cert } from 'firebase-admin/app';
+import { getAppCheck } from 'firebase-admin/app-check';
+
+// Initialize Firebase Admin SDK
+if (getApps().length === 0) {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  if (privateKey && clientEmail && projectId) {
+    initializeApp({
+      credential: cert({
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, '\n'),
+      }),
+    });
+  } else {
+    try {
+      initializeApp({
+        projectId,
+      });
+    } catch (e) {
+      console.warn('⚠️ Firebase Admin SDK initialized with default settings:', e);
+    }
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
+    // 1. Extract App Check Token from headers
+    const appCheckToken = req.headers.get('x-firebase-appcheck');
+
+    if (!appCheckToken) {
+      console.error('❌ App Check Error: x-firebase-appcheck header is missing.');
+      return NextResponse.json({ error: 'App Check token is missing.' }, { status: 401 });
+    }
+
+    // 2. Validate App Check Token via Admin SDK
+    try {
+      if (process.env.NODE_ENV === 'development' && appCheckToken === 'local-dev-bypass-token') {
+        console.info('ℹ️ Bypassed App Check verification in development mode.');
+      } else {
+        const appCheck = getAppCheck();
+        await appCheck.verifyToken(appCheckToken);
+      }
+    } catch (appCheckErr: any) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ App Check verification failed in development. Bypassing check:', appCheckErr.message);
+      } else {
+        console.error('❌ App Check Verification Failed:', appCheckErr);
+        return NextResponse.json({ error: 'Unauthorized: Invalid App Check token.' }, { status: 403 });
+      }
+    }
+
     const { text, action, templateType } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 

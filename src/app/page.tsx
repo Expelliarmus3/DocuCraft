@@ -6,6 +6,7 @@ import Preview from '@/components/Preview';
 import { TemplateId } from '@/utils/types';
 import { exportToDocx, exportToPdf } from '@/utils/documentExporter';
 import { Sun, Moon } from 'lucide-react';
+import { initAppCheck, getAppCheckToken } from '@/utils/firebase';
 
 export default function WorkspacePage() {
   const [title, setTitle] = useState('Project Layout Assessment Blueprint');
@@ -25,13 +26,26 @@ export default function WorkspacePage() {
     }
   }, [isDarkMode]);
 
+  // Initialize Firebase App Check client-side
+  useEffect(() => {
+    initAppCheck();
+  }, []);
+
   const handleAiEnhance = async (action: string) => {
     if (!content.trim()) return;
     setLoading(true);
     try {
+      const token = await getAppCheckToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['x-firebase-appcheck'] = token;
+      }
+
       const res = await fetch('/api/gemini', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ text: content, action, templateType: templateId }),
       });
       const data = await res.json();
