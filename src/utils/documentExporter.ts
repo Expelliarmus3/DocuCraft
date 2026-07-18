@@ -3,14 +3,17 @@ import { Document, Paragraph, TextRun, Packer } from "docx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+
 export async function exportToDocx(
   title: string,
   content: string
 ): Promise<void> {
+
   const doc = new Document({
     sections: [
       {
         children: [
+
           new Paragraph({
             children: [
               new TextRun({
@@ -20,6 +23,7 @@ export async function exportToDocx(
               }),
             ],
           }),
+
 
           ...content.split("\n").map(
             (line) =>
@@ -32,117 +36,318 @@ export async function exportToDocx(
                 ],
               })
           ),
+
         ],
       },
     ],
   });
 
+
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `${title.replace(/\s+/g, "_") || "document"}.docx`);
+
+  saveAs(
+    blob,
+    `${title.replace(/\s+/g, "_") || "document"}.docx`
+  );
 }
 
-// import jsPDF from "jspdf";
-// import html2canvas from "html2canvas";
+
+
 
 export async function exportToPdf(
   element: HTMLDivElement | null,
   fileName: string
 ): Promise<void> {
+
   if (!element) return;
 
+
+  let clone: HTMLElement | null = null;
+
+
   try {
-    // Clone the element instead of modifying the original
-    const clone = element.cloneNode(true) as HTMLElement;
+
+
+    // ----------------------------
+    // Clone DOM
+    // ----------------------------
+
+    clone = element.cloneNode(true) as HTMLElement;
+
 
     clone.style.position = "fixed";
     clone.style.left = "-100000px";
     clone.style.top = "0";
-    clone.style.width = `${element.offsetWidth}px`;
 
-    // Important: let the content determine its own height
+    clone.style.width =
+      `${element.clientWidth}px`;
+
     clone.style.height = "auto";
+
     clone.style.maxHeight = "none";
+
     clone.style.minHeight = "0";
+
     clone.style.overflow = "visible";
 
-    // Remove scrolling from every child
-    clone.querySelectorAll<HTMLElement>("*").forEach((el) => {
-      const style = window.getComputedStyle(el);
 
-      if (
-        style.overflow === "auto" ||
-        style.overflow === "scroll" ||
-        style.overflowY === "auto" ||
-        style.overflowY === "scroll"
-      ) {
-        el.style.overflow = "visible";
-        el.style.overflowY = "visible";
-        el.style.maxHeight = "none";
-        el.style.height = "auto";
-      }
-    });
+    // ----------------------------
+    // ONLY remove overflow traps
+    // ----------------------------
+
+    clone
+      .querySelectorAll<HTMLElement>("*")
+      .forEach((el)=>{
+
+        const style =
+          window.getComputedStyle(el);
+
+
+        if(
+          style.overflow === "auto" ||
+          style.overflow === "scroll" ||
+          style.overflowY === "auto" ||
+          style.overflowY === "scroll"
+        ){
+
+          el.style.overflow = "visible";
+
+          el.style.overflowY = "visible";
+
+          el.style.height = "auto";
+
+          el.style.maxHeight = "none";
+
+        }
+
+      });
+
+
 
     document.body.appendChild(clone);
 
-    // Wait for browser layout
-    await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const canvas = await html2canvas(clone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      scrollX: 0,
-      scrollY: 0,
-      width: clone.scrollWidth,
-      height: clone.scrollHeight,
-      windowWidth: clone.scrollWidth,
-      windowHeight: clone.scrollHeight,
-    });
+
+    // wait for layout calculation
+
+    await new Promise((resolve)=>
+      requestAnimationFrame(resolve)
+    );
+
+
+
+    // ----------------------------
+    // HTML -> Canvas
+    // ----------------------------
+
+    const canvas = await html2canvas(
+      clone,
+      {
+
+        scale: 2,
+
+        useCORS:true,
+
+        backgroundColor:"#ffffff",
+
+
+        scrollX:0,
+
+        scrollY:0,
+
+
+        width:
+          clone.scrollWidth,
+
+
+        height:
+          clone.scrollHeight,
+
+
+        windowWidth:
+          clone.scrollWidth,
+
+
+        windowHeight:
+          clone.scrollHeight,
+
+
+      }
+    );
+
+
 
     document.body.removeChild(clone);
 
+    clone=null;
+
+
+
+    // ----------------------------
+    // PDF Creation
+    // ----------------------------
+
     const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
+
+      orientation:"portrait",
+
+      unit:"mm",
+
+      format:"a4",
+
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    const imgData = canvas.toDataURL("image/png");
+    const pdfWidth =
+      pdf.internal.pageSize.getWidth();
 
-    let heightLeft = imgHeight;
-    let position = 0;
 
-    // First page
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    const pdfHeight =
+      pdf.internal.pageSize.getHeight();
 
-    heightLeft -= pdfHeight;
 
-    // Remaining pages
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
 
-      pdf.addPage();
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        position,
-        imgWidth,
-        imgHeight
+    const pageHeightPx =
+      Math.floor(
+        canvas.width *
+        pdfHeight /
+        pdfWidth
       );
 
-      heightLeft -= pdfHeight;
+
+
+    let offset = 0;
+
+    let page = 0;
+
+
+
+    while(offset < canvas.height){
+
+
+      const height =
+        Math.min(
+          pageHeightPx,
+          canvas.height - offset
+        );
+
+
+
+      const pageCanvas =
+        document.createElement("canvas");
+
+
+      pageCanvas.width =
+        canvas.width;
+
+
+      pageCanvas.height =
+        height;
+
+
+
+      const ctx =
+        pageCanvas.getContext("2d");
+
+
+      if(!ctx) break;
+
+
+
+      ctx.drawImage(
+
+        canvas,
+
+        0,
+        offset,
+
+        canvas.width,
+        height,
+
+        0,
+        0,
+
+        canvas.width,
+        height
+
+      );
+
+
+
+      const img =
+        pageCanvas.toDataURL(
+          "image/png"
+        );
+
+
+
+      const imgHeight =
+        height *
+        pdfWidth /
+        canvas.width;
+
+
+
+      if(page > 0){
+        pdf.addPage();
+      }
+
+
+
+      pdf.addImage(
+
+        img,
+
+        "PNG",
+
+        0,
+
+        0,
+
+        pdfWidth,
+
+        imgHeight
+
+      );
+
+
+
+      offset += height;
+
+      page++;
+
     }
 
-    pdf.save(`${fileName.replace(/\s+/g, "_") || "document"}.pdf`);
-  } catch (err) {
-    console.error("PDF Export Error:", err);
+
+
+    pdf.save(
+      `${fileName.replace(/\s+/g,"_") || "document"}.pdf`
+    );
+
+
+
   }
+  catch(error){
+
+    console.error(
+      "PDF Export Error:",
+      error
+    );
+
+  }
+  finally{
+
+
+    if(
+      clone &&
+      document.body.contains(clone)
+    ){
+
+      document.body.removeChild(clone);
+
+    }
+
+  }
+
 }
