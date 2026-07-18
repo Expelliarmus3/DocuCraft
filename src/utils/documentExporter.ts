@@ -41,6 +41,9 @@ export async function exportToDocx(
   saveAs(blob, `${title.replace(/\s+/g, "_") || "document"}.docx`);
 }
 
+// import jsPDF from "jspdf";
+// import html2canvas from "html2canvas";
+
 export async function exportToPdf(
   element: HTMLDivElement | null,
   fileName: string
@@ -48,43 +51,55 @@ export async function exportToPdf(
   if (!element) return;
 
   try {
-    // Save original styles
-    const original = {
-      height: element.style.height,
-      maxHeight: element.style.maxHeight,
-      overflow: element.style.overflow,
-    };
+    // Clone the element instead of modifying the original
+    const clone = element.cloneNode(true) as HTMLElement;
 
-    // Expand element to full height
-    element.style.height = `${element.scrollHeight}px`;
-    element.style.maxHeight = "none";
-    element.style.overflow = "visible";
+    clone.style.position = "fixed";
+    clone.style.left = "-100000px";
+    clone.style.top = "0";
+    clone.style.width = `${element.offsetWidth}px`;
 
-    // Wait one frame so browser re-renders
+    // Important: let the content determine its own height
+    clone.style.height = "auto";
+    clone.style.maxHeight = "none";
+    clone.style.minHeight = "0";
+    clone.style.overflow = "visible";
+
+    // Remove scrolling from every child
+    clone.querySelectorAll<HTMLElement>("*").forEach((el) => {
+      const style = window.getComputedStyle(el);
+
+      if (
+        style.overflow === "auto" ||
+        style.overflow === "scroll" ||
+        style.overflowY === "auto" ||
+        style.overflowY === "scroll"
+      ) {
+        el.style.overflow = "visible";
+        el.style.overflowY = "visible";
+        el.style.maxHeight = "none";
+        el.style.height = "auto";
+      }
+    });
+
+    document.body.appendChild(clone);
+
+    // Wait for browser layout
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    // Capture the entire element
-    const canvas = await html2canvas(element, {
+    const canvas = await html2canvas(clone, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
-
-      width: element.scrollWidth,
-      height: element.scrollHeight,
-
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
-
       scrollX: 0,
       scrollY: 0,
+      width: clone.scrollWidth,
+      height: clone.scrollHeight,
+      windowWidth: clone.scrollWidth,
+      windowHeight: clone.scrollHeight,
     });
 
-    // Restore styles
-    element.style.height = original.height;
-    element.style.maxHeight = original.maxHeight;
-    element.style.overflow = original.overflow;
-
-    const imgData = canvas.toDataURL("image/png");
+    document.body.removeChild(clone);
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -98,11 +113,14 @@ export async function exportToPdf(
     const imgWidth = pdfWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+    const imgData = canvas.toDataURL("image/png");
+
     let heightLeft = imgHeight;
     let position = 0;
 
     // First page
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
     heightLeft -= pdfHeight;
 
     // Remaining pages
@@ -124,7 +142,7 @@ export async function exportToPdf(
     }
 
     pdf.save(`${fileName.replace(/\s+/g, "_") || "document"}.pdf`);
-  } catch (error) {
-    console.error("PDF Export Error:", error);
+  } catch (err) {
+    console.error("PDF Export Error:", err);
   }
 }
