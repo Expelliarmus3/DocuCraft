@@ -1,7 +1,6 @@
 import { saveAs } from 'file-saver';
 import { Document, Paragraph, TextRun, Packer } from 'docx';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 export async function exportToDocx(title: string, content: string): Promise<void> {
   const doc = new Document({
@@ -27,59 +26,46 @@ export async function exportToDocx(title: string, content: string): Promise<void
 export async function exportToPdf(element: HTMLDivElement | null, fileName: string): Promise<void> {
   if (!element) return;
 
-  // 1. Temporarily back up original screen styles
+  // 1. Temporarily isolate original workspace views[cite: 3]
   const originalWidth = element.style.width;
   const originalMaxWidth = element.style.maxWidth;
   const originalPadding = element.style.padding;
-  const originalBoxShadow = element.style.boxShadow;
   const originalBackground = element.style.background;
+  const originalColor = element.style.color;
 
-  // 2. Force strict, stable A4 dimensions for the snapshot container
-  element.style.width = '210mm';
-  element.style.maxWidth = '210mm';
-  element.style.padding = '20mm'; // Standard margins
-  element.style.boxShadow = 'none'; // Clear interface shadows
-  element.style.background = '#ffffff'; // Pristine printable background
+  // 2. Clamp element to strict, clean printable variables before parsing[cite: 3]
+  element.style.width = '170mm'; // Shrink slightly to account for the PDF target page padding
+  element.style.maxWidth = '170mm';
+  element.style.padding = '0mm';
+  element.style.background = '#ffffff'; // Force clean sheet backing[cite: 3]
+  element.style.color = '#000000';      // Ensure clear print text clarity
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
   try {
-    // 3. Capture high-res canvas payload
-    const canvas = await html2canvas(element, { 
-      scale: 2, 
-      useCORS: true,
-      logging: false,
-      scrollX: 0,
-      scrollY: 0
+    // 3. Use native structural HTML pagination parser engine
+    await pdf.html(element, {
+      callback: function (doc) {
+        doc.save(`${fileName.replace(/\s+/g, '_') || 'document'}.pdf`);
+      },
+      x: 20, // Clean 20mm left margin padding alignment
+      y: 20, // Clean 20mm top margin padding alignment
+      autoPaging: 'text', // Automatically monitors element nodes and cleanly splits lines across pages
+      width: 170, // Matches width target definition inside container frame layout
+      windowWidth: 794 // Sets viewport emulation base structure
     });
-    
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    
-    const imgWidth = 210; // Fixed A4 width[cite: 3]
-    const pageHeight = 297; // Standard A4 height limit in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    // 4. Multi-page slice handling engine
-    // Add the first slice onto page one
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    // Loop through remaining canvas heights and append new sheets as needed
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    // 5. Trigger download payload[cite: 3]
-    pdf.save(`${fileName.replace(/\s+/g, '_') || 'document'}.pdf`);
   } catch (error) {
-    console.error('❌ PDF Generation Error:', error);
+    console.error('❌ Advanced PDF Generation Error:', error);
   } finally {
-    // 6. Instantly restore responsive layout integrity[cite: 3]
+    // 4. Instantly restore pristine workspace layout classes[cite: 3]
     element.style.width = originalWidth;
+    element.style.maxWidth = originalMaxWidth;
+    element.style.padding = originalPadding;
+    element.style.background = originalBackground;
+    element.style.color = originalColor;
   }
 }
